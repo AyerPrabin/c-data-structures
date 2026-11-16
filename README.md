@@ -44,15 +44,20 @@ Everything is compiled with `-std=c11 -Wall -Wextra -Werror -pedantic`.
 
 ## API style
 
-All five containers follow the same pattern so they are easy to remember:
+I tried to keep the containers alike so they are easy to remember:
 
 - The struct lives on the caller's side (`Vec v; vec_init(&v, sizeof(int));`)
   and `*_free` releases whatever the container allocated.
-- Functions that can allocate return `0` (or `1` for "added a new key") on
-  success and `-1` if `malloc` failed, and leave the container unchanged.
-- Lookups return `1` / `0` for found / not found and write the value through
-  an optional out pointer, so a stored `NULL` value is not confused with
-  "missing".
+- Functions that can allocate return `0` (or `1` for "added a new key" in
+  `hm_put` and `bst_insert`) on success and `-1` if `malloc` failed, and
+  leave the container unchanged.
+- The two maps, `hm_get` and `bst_find`, return `1` / `0` for found / not
+  found and write the value through an optional out pointer, so a stored
+  `NULL` value is not confused with "missing".
+- The others differ: `vec_get` returns a pointer to the element (or `NULL`
+  if the index is out of range), `slist_find` / `dlist_find` return the node
+  (or `NULL`), and the pop and peek functions return `0`, or `-1` when the
+  container is empty.
 
 Ownership rules, which are also written at the top of each header:
 
@@ -179,14 +184,18 @@ What I take from it:
 
 - Linear search grows with n, as expected, and is already about 15x slower
   than the hash map at 100 keys.
-- The BST grows slowly (log n) when the keys are shuffled, but the hash map
-  stays roughly flat until the table gets too big for the CPU cache.
+- The BST grows slowly (log n) when the keys are shuffled, and the hash map
+  stays roughly flat, though it does get slower at 100,000 keys. My guess is
+  that the table and the key strings no longer fit in the CPU cache by then,
+  but I have not measured that.
 - Inserted in sorted order, the BST is worse than linear search. Each step is
   a pointer chase to a node somewhere else in memory, while the linear scan
   walks one array.
 - Linear search on the sorted rows is faster than on the shuffled rows with
-  the same n. The strings were allocated in order, so walking them in order
-  is kinder to the cache. I had not expected that before I saw it.
+  the same n. I had not expected that. My guess is memory layout: the
+  strings were allocated in order, so walking the unshuffled array reads
+  memory in order. It could also just be noise from a single run, since the
+  sorted rows ran last.
 
 ## Tests
 
