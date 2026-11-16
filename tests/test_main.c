@@ -11,6 +11,7 @@ int main(void)
     } suites[] = {
         {"vector", test_vector},
         {"list", test_list},
+        {"hashmap", test_hashmap},
     };
 
     for (size_t i = 0; i < sizeof suites / sizeof suites[0]; i++) {
