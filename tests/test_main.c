@@ -10,6 +10,7 @@ int main(void)
         void (*fn)(void);
     } suites[] = {
         {"vector", test_vector},
+        {"list", test_list},
     };
 
     for (size_t i = 0; i < sizeof suites / sizeof suites[0]; i++) {
