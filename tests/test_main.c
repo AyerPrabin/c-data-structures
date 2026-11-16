@@ -13,6 +13,7 @@ int main(void)
         {"list", test_list},
         {"hashmap", test_hashmap},
         {"heap", test_heap},
+        {"bst", test_bst},
     };
 
     for (size_t i = 0; i < sizeof suites / sizeof suites[0]; i++) {
